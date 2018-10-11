@@ -5,6 +5,24 @@ class Vector2D {
   }
 }
 
+class Box2D {
+  constructor(x = 0, y = 0, width = 0, height = 0) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+  }
+
+  static intersects(box1, box2) {
+    return (
+      box1.x < box2.x + box2.width &&
+      box1.x + box1.width > box2.x &&
+      box1.y < box2.y + box2.height &&
+      box1.height + box1.y > box2.y
+    );
+  }
+}
+
 class GameObject {
   constructor(positionX = 0, positionY = 0) {
     this.position = new Vector2D(positionX, positionY);
@@ -22,6 +40,10 @@ class GameObject {
 
   update(timeDelta) {
     console.log('base object updated');
+  }
+
+  get collisionBox() {
+    return new Box2D(this.position.x, this.position.y, this.width, this.height);
   }
 }
 
@@ -56,18 +78,46 @@ class Ball extends GameObject {
   }
 
   update(timeDelta) {
+    this.speed = this.speed >= MAX_SPEED ? MAX_SPEED : this.speed;
     this.position.x += this.direction.x * this.speed;
     this.position.y += this.direction.y * this.speed;
     this.checkBounds();
   }
 
   checkBounds() {
-    if (this.position.x >= MAX_WIDTH || this.position.x <= 0) {
-      this.direction = new Vector2D(-1 * this.direction.x, this.direction.y);
+    if (this.position.x >= MAX_WIDTH) {
+      playerScore += 1;
+      newRound = true;
+    }
+    if (this.position.x <= 0) {
+      aiScore += 1;
+      newRound = true;
     }
 
     if (this.position.y >= MAX_HEIGTH || this.position.y <= 0) {
       this.direction = new Vector2D(this.direction.x, -1 * this.direction.y);
+      this.speedUp();
     }
   }
+
+  paddleCollision() {
+    this.speedUp();
+    this.reverseXDirection();
+  }
+
+  speedUp() {
+    this.speed += 0.1;
+  }
+
+  reverseXDirection() {
+    this.direction = new Vector2D(-1 * this.direction.x, this.direction.y);
+  }
+}
+
+//utils
+
+let randomDirections = [new Vector2D(-1, -1), new Vector2D(-1, 1)];
+
+function getRandomDirection() {
+  return randomDirections[Math.floor(Math.random() * 2)];
 }

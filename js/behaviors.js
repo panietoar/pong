@@ -1,3 +1,5 @@
+let ballPosition = 0;
+
 class Behavior {
   constructor() {
     this.position = 0;
@@ -29,13 +31,17 @@ class PlayerBehavior extends Behavior {
 }
 
 class AIBehavior extends Behavior {
-  constructor() {
+  constructor(paddle) {
     super();
+    this.paddle = paddle;
   }
 
   getNewPosition() {
-    let randomMovement = getRandomInt(-8, 10);
-    this.position += randomMovement;
-    return this.position;
+    this.position = this.paddle.position.y;
+    let difference = this.position - ballPosition;
+    let yDirection = difference <= 0 ? 1 : -1;
+
+    let movement = this.position + yDirection * 6;
+    return movement;
   }
 }

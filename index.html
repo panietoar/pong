@@ -9,12 +9,14 @@
   <style>
     .game {
       display: flex;
+      flex-direction: column;
       justify-content: space-around;
       align-items: center;
     }
 
     .game__canvas {
       background-color: #000;
+      cursor: none;
     }
   </style>
 </head>
@@ -22,6 +24,8 @@
 <body>
   <main class="game">
     <canvas class="game__canvas" width="800" height="600" id="gameCanvas"></canvas>
+    <br>
+    <button class="reset">Reset game</button>
   </main>
   <script src="js/const.js"></script>
   <script src="js/behaviors.js"></script>
