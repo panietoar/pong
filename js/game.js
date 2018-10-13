@@ -3,25 +3,32 @@ class Game {
     this.context = context;
     this.paddles = [];
     this.ball = null;
-    this.initGame();
     this.previous = undefined;
     this.elapsed = 0;
+    this.initGame();
+    window.requestAnimationFrame(this.frame.bind(this));
   }
 
   initGame() {
     this.paddles = [];
-    Global.playerScore = 0;
-    Global.aiScore = 0;
-    let playerPaddle = new Paddle(20, 0);
+    let playerPaddle = new Paddle(10, 0);
     playerPaddle.behavior = new PlayerBehavior();
 
-    let aiPaddle = new Paddle(MAX_WIDTH - PADDLE_WIDTH - 20, 400);
+    let aiPaddle = new Paddle(MAX_WIDTH - PADDLE_WIDTH - 10, 400);
     aiPaddle.behavior = new AIBehavior(aiPaddle);
 
     this.ball = Ball.createBall(0);
     
     this.paddles.push(playerPaddle, aiPaddle);
-    window.requestAnimationFrame(this.frame.bind(this));
+  }
+
+  restart() {
+    Global.isPaused = false;
+    this.paddles = [];
+    this.ball = null;
+    this.previous = undefined;
+    this.elapsed = 0;
+    this.initGame();
   }
   
   nextFrame(timeDelta) {
@@ -74,7 +81,7 @@ class Game {
 
     this.context.font = '64px sans-serif';
     this.context.fillStyle = 'grey';
-    this.context.fillText(`Player ${Global.lastScorer + 1} Won!`, 200, 280);
+    this.context.fillText(`Player ${Global.lastScorer + 1} Won!`, 200, 320);
 
     this.context.restore();
 
@@ -104,11 +111,10 @@ class Game {
 
   frame(timestamp) {
     this.clearCanvas();
-
     if (!this.previous) {
       this.previous = timestamp;
     }
-
+    
     this.elapsed = timestamp - this.previous;
     const timeDelta = this.elapsed / 1000;
     this.nextFrame(timeDelta);
@@ -123,5 +129,8 @@ let game = new Game(context);
 RESET_BUTTON.addEventListener('click', event => {
   Global.playerScore = 0;
   Global.aiScore = 0;
-  game.initGame();
+  Global.newRound = false;
+  Global.ballPosition = 0;
+  Global.lastScorer = 0;
+  game.restart();
 });
