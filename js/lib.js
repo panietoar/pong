@@ -2,7 +2,8 @@ let Global = {
   playerScore: 0,
   aiScore: 0,
   newRound: false,
-  ballPosition: 0
+  ballPosition: 0,
+  lastScorer: 0
 }
 
 class Vector2D {
@@ -94,10 +95,12 @@ class Ball extends GameObject {
   checkBounds() {
     if (this.position.x >= MAX_WIDTH) {
       Global.playerScore += 1;
+      Global.lastScorer = 0;
       Global.newRound = true;
     }
     if (this.position.x <= 0) {
       Global.aiScore += 1;
+      Global.lastScorer = 1;
       Global.newRound = true;
     }
 
@@ -125,10 +128,10 @@ class Ball extends GameObject {
       MAX_WIDTH / 2,
       MAX_HEIGTH / 2,
       INITIAL_BALL_SPEED,
-      randomDirections[initialDirection]
+      ballDirections[initialDirection]
     );
   }
 }
 
 //utils
-let randomDirections = [new Vector2D(-1, -1), new Vector2D(-1, 1)];
+let ballDirections = [new Vector2D(-1, -1), new Vector2D(1, 1)];

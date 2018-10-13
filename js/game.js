@@ -10,6 +10,8 @@ class Game {
 
   initGame() {
     this.paddles = [];
+    Global.playerScore = 0;
+    Global.aiScore = 0;
     let playerPaddle = new Paddle(20, 0);
     playerPaddle.behavior = new PlayerBehavior();
 
@@ -17,31 +19,32 @@ class Game {
     aiPaddle.behavior = new AIBehavior(aiPaddle);
 
     this.ball = Ball.createBall(0);
-
+    
     this.paddles.push(playerPaddle, aiPaddle);
     window.requestAnimationFrame(this.frame.bind(this));
   }
-
+  
   nextFrame(timeDelta) {
     this.update(timeDelta);
     this.draw();
-    Global.ballPosition = this.ball.position.y;
   }
-
+  
   update(timeDelta) {
     if (Global.newRound) {
-      this.ball = Ball.createBall(0);
+      this.ball = Ball.createBall(Global.lastScorer);
       Global.newRound = false;
     }
-    this.ball.update(timeDelta);
+    this.ball && this.ball.update(timeDelta);
+    Global.ballPosition = this.ball && this.ball.position.y;
     this.paddles.forEach(object => object.update(timeDelta));
     this.checkCollisions();
+    this.checkVictory();
   }
 
   draw() {
     this.drawScore();
     this.paddles.forEach(object => object.draw(this.context));
-    this.ball.draw(context);
+    this.ball && this.ball.draw(context);
   }
 
   checkCollisions() {
@@ -55,6 +58,26 @@ class Game {
     if (collision) {
       this.ball.paddleCollision();
     }
+  }
+
+  checkVictory() {
+    if(Global.playerScore === 2 || Global.aiScore === 2) {
+      this.endGame();
+    }
+  }
+
+  endGame() {
+    this.paddles = [];
+    this.ball = null;
+
+    this.context.save();
+
+    this.context.font = '64px sans-serif';
+    this.context.fillStyle = 'grey';
+    this.context.fillText(`Player ${Global.lastScorer + 1} Won!`, 200, 280);
+
+    this.context.restore();
+
   }
 
   drawScore() {
