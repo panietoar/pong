@@ -1,3 +1,10 @@
+let Global = {
+  playerScore: 0,
+  aiScore: 0,
+  newRound: false,
+  ballPosition: 0
+}
+
 class Vector2D {
   constructor(x = 0, y = 0) {
     this.x = x;
@@ -86,12 +93,12 @@ class Ball extends GameObject {
 
   checkBounds() {
     if (this.position.x >= MAX_WIDTH) {
-      playerScore += 1;
-      newRound = true;
+      Global.playerScore += 1;
+      Global.newRound = true;
     }
     if (this.position.x <= 0) {
-      aiScore += 1;
-      newRound = true;
+      Global.aiScore += 1;
+      Global.newRound = true;
     }
 
     if (this.position.y >= MAX_HEIGTH || this.position.y <= 0) {
@@ -112,12 +119,16 @@ class Ball extends GameObject {
   reverseXDirection() {
     this.direction = new Vector2D(-1 * this.direction.x, this.direction.y);
   }
+
+  static createBall(initialDirection) {
+    return new Ball(
+      MAX_WIDTH / 2,
+      MAX_HEIGTH / 2,
+      INITIAL_BALL_SPEED,
+      randomDirections[initialDirection]
+    );
+  }
 }
 
 //utils
-
 let randomDirections = [new Vector2D(-1, -1), new Vector2D(-1, 1)];
-
-function getRandomDirection() {
-  return randomDirections[Math.floor(Math.random() * 2)];
-}

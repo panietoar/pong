@@ -1,5 +1,3 @@
-let ballPosition = 0;
-
 class Behavior {
   constructor() {
     this.position = 0;
@@ -38,10 +36,10 @@ class AIBehavior extends Behavior {
 
   getNewPosition() {
     this.position = this.paddle.position.y;
-    let difference = this.position - ballPosition;
+    let difference = this.position - Global.ballPosition;
     let yDirection = difference <= 0 ? 1 : -1;
 
-    let movement = this.position + yDirection * 6;
+    let movement = this.position + yDirection * AI_PADDLE_SPEED;
     return movement;
   }
 }

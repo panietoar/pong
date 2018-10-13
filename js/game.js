@@ -1,12 +1,11 @@
-let playerScore = 0;
-let aiScore = 0;
-let newRound = false;
 class Game {
   constructor(context) {
     this.context = context;
     this.paddles = [];
-    this.currentBall = null;
+    this.ball = null;
     this.initGame();
+    this.previous = undefined;
+    this.elapsed = 0;
   }
 
   initGame() {
@@ -17,33 +16,24 @@ class Game {
     let aiPaddle = new Paddle(MAX_WIDTH - PADDLE_WIDTH - 20, 400);
     aiPaddle.behavior = new AIBehavior(aiPaddle);
 
-    this.currentBall = new Ball(
-      MAX_WIDTH / 2,
-      MAX_HEIGTH / 2,
-      5,
-      getRandomDirection()
-    );
+    this.ball = Ball.createBall(0);
 
     this.paddles.push(playerPaddle, aiPaddle);
+    window.requestAnimationFrame(this.frame.bind(this));
   }
 
   nextFrame(timeDelta) {
     this.update(timeDelta);
     this.draw();
-    ballPosition = this.currentBall.position.y;
+    Global.ballPosition = this.ball.position.y;
   }
 
   update(timeDelta) {
-    if (newRound) {
-      this.currentBall = new Ball(
-        MAX_WIDTH / 2,
-        MAX_HEIGTH / 2,
-        5,
-        getRandomDirection()
-      );
-      newRound = false;
+    if (Global.newRound) {
+      this.ball = Ball.createBall(0);
+      Global.newRound = false;
     }
-    this.currentBall.update(timeDelta);
+    this.ball.update(timeDelta);
     this.paddles.forEach(object => object.update(timeDelta));
     this.checkCollisions();
   }
@@ -51,19 +41,19 @@ class Game {
   draw() {
     this.drawScore();
     this.paddles.forEach(object => object.draw(this.context));
-    this.currentBall.draw(context);
+    this.ball.draw(context);
   }
 
   checkCollisions() {
     const collision = this.paddles.some(paddle => {
       return Box2D.intersects(
-        this.currentBall.collisionBox,
+        this.ball.collisionBox,
         paddle.collisionBox
       );
     });
 
     if (collision) {
-      this.currentBall.paddleCollision();
+      this.ball.paddleCollision();
     }
   }
 
@@ -72,8 +62,8 @@ class Game {
 
     this.context.font = '48px sans-serif';
     this.context.fillStyle = 'grey';
-    this.context.fillText(playerScore, 190, 75);
-    this.context.fillText(aiScore, 590, 75);
+    this.context.fillText(Global.playerScore, 190, 75);
+    this.context.fillText(Global.aiScore, 590, 75);
 
     this.context.restore();
   }
@@ -88,29 +78,27 @@ class Game {
     this.context.stroke();
     this.context.restore();
   }
+
+  frame(timestamp) {
+    this.clearCanvas();
+
+    if (!this.previous) {
+      this.previous = timestamp;
+    }
+
+    this.elapsed = timestamp - this.previous;
+    const timeDelta = this.elapsed / 1000;
+    this.nextFrame(timeDelta);
+    this.previous = timestamp;
+    window.requestAnimationFrame(this.frame.bind(this));
+  }
 }
 
 let context = CANVAS.getContext('2d');
 let game = new Game(context);
-// Game loop
-let previous, elapsed, timeDelta;
-function frame(timestamp) {
-  game.clearCanvas();
-
-  if (!previous) {
-    previous = timestamp;
-  }
-
-  elapsed = timestamp - previous;
-  timeDelta = elapsed / 1000;
-  game.nextFrame(timeDelta);
-  previous = timestamp;
-  window.requestAnimationFrame(frame);
-}
-window.requestAnimationFrame(frame);
 
 RESET_BUTTON.addEventListener('click', event => {
-  playerScore = 0;
-  aiScore = 0;
+  Global.playerScore = 0;
+  Global.aiScore = 0;
   game.initGame();
 });
