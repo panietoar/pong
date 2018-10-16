@@ -55,20 +55,23 @@ class Game {
   }
 
   checkCollisions() {
-    const collision = this.paddles.some(paddle => {
-      return Box2D.intersects(
+
+    this.paddles.forEach(paddle => {
+      if(Box2D.intersects(
         this.ball.collisionBox,
         paddle.collisionBox
-      );
+      )) {
+        this.collision(this.ball, paddle);
+      }
     });
+  }
 
-    if (collision) {
-      this.ball.paddleCollision();
-    }
+  collision(ball, paddle) {
+    ball.paddleCollision(paddle);
   }
 
   checkVictory() {
-    if(Global.playerScore === 2 || Global.aiScore === 2) {
+    if(Global.playerScore === 5 || Global.aiScore === 5) {
       this.endGame();
     }
   }

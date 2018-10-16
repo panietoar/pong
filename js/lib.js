@@ -53,6 +53,7 @@ class GameObject {
   get collisionBox() {
     return new Box2D(this.position.x, this.position.y, this.width, this.height);
   }
+
 }
 
 class Paddle extends GameObject {
@@ -64,7 +65,7 @@ class Paddle extends GameObject {
   }
 
   update() {
-    let newPosition = this.behavior && this.behavior.getNewPosition();
+    const newPosition = this.behavior && this.behavior.getNewPosition();
     if (newPosition < MAX_HEIGTH - PADDLE_HEIGHT && newPosition > 0) {
       this.position.y = newPosition;
     }
@@ -110,9 +111,18 @@ class Ball extends GameObject {
     }
   }
 
-  paddleCollision() {
+  paddleCollision(paddle) {
     this.speedUp();
     this.reverseXDirection();
+    this.correctYDirection(paddle.position.y);
+  }
+  
+  correctYDirection(paddleY) {
+    let impactY = Math.abs(this.position.y - paddleY);
+    impactY -= PADDLE_HEIGHT / 2;
+  
+    const yDirection = impactY !== 0 ? impactY / (PADDLE_HEIGHT / 2) : 0;
+    this.direction.y = yDirection;
   }
 
   speedUp() {
