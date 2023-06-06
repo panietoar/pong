@@ -4,6 +4,7 @@
   "description": "A pong game",
   "main": "index.js",
   "scripts": {
+    "build": "echo built",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
